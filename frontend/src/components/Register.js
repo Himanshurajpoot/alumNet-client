@@ -1,113 +1,89 @@
 import { useState } from 'react';
 import { registerUser } from '../utils/constant';
 import { useNavigate } from 'react-router-dom';
+import UserForm from './common/UserForm';
 
 function Register() {
     const [state, setState] = useState({
         name: '',
         email: '',
         password: '',
-        role: '',
-        bio: '',
+        role: 'student',
         graduationYear: '',
-        department: ''
+        department: '',
+        verified: true,
+        isActive: true,
+        avatarUrl: "https://imgs.search.brave.com/UCLK8e9kMkUTSrc6JLNm-VdkEQueaJlzm0XZe3mbDdU/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9pbWcu/ZnJlZXBpay5jb20v/ZnJlZS1waG90by9h/bmRyb2d5bm91cy1h/dmF0YXItbm9uLWJp/bmFyeS1xdWVlci1w/ZXJzb25fMjMtMjE1/MTEwMDIyMS5qcGc_/c2VtdD1haXNfaHli/cmlkJnc9NzQwJnE9/ODA",
+        batch: '',
+        course: '',
+        currentJob: '',
+        error: ''
     });
+    const [loading, setLoading] = useState(false);
+
+    const currentyear = new Date().getFullYear();
+    const years = [];
+    for (let i = 1990; i <= currentyear; i++) {
+        years.push(i);
+    }
+
+    const departments = [
+        "Department of Basic Sciences",
+        "Department of Agriculture",
+        "Department of Civil Engineering",
+        "Department of Electrical, Electronics & Communication Engineering",
+        "Department of Mechanical Engineering",
+        "Department of Computer Science & Engineering",
+        "Department of Computer Applications & Technology",
+        "Department of Artificial Intelligence",
+        "Department of Defence Technology",
+        "Department of Design",
+        "Department of Finance & Commerce",
+        "Department of Hospitality & Toursim",
+        "Department of legal Studies",
+        "Department of Mass Communication",
+        "Department of Humanities",
+        "Department of Languages",
+        "Department of Pharmacy",
+        "Department of Allied Health Sciences",
+        "Department of Nursing",
+        "Department of Education",
+        "Department of Biotechnology & Bioengineering",
+        "Department of Life Sciences",
+        "Department of Food Technology",
+        "Department of Biomedical Sciences",
+        "Department of Forensic Sciences",
+        "Department of Management",
+        "Department of Aviation, Logistics & Tourism Management",
+        "Department of Finance and Commerce",
+        "Department of Vocational Education"
+    ];
+
+
+
 
     const navigate = useNavigate();
 
-    const handleChange = ({ target }) => {
-        const {name,value} = target;
-        setState((prevState)=>({...prevState,[name]: value}))
-    }
-
     const handleRegister = (e) => {
         e.preventDefault();
-            //    navigate('/login');
-
-        registerUser(state,setState,navigate)
+        registerUser(state, setState, setLoading, navigate);
     }
 
+
     return (
-        <>
-        <form 
-            onSubmit={handleRegister} 
-            className="max-w-md mx-auto mt-10 bg-white p-8 rounded shadow flex flex-col gap-4"
-        >
-        <h2 className="text-3xl font-bold text-center mt-10 mb-4 text-blue-700">Register</h2>
-            <input
-                value={state.name}
-                type="text"
-                name="name"
-                placeholder="Name"
-                onChange={handleChange}
-                className="border p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-200 via-white to-blue-400">
+            <UserForm
+                state={state}
+                setState={setState}
+                loading={loading}
+                onSubmit={handleRegister}
+                years={years}
+                departments={departments}
+                isEdit={false}
             />
+        </div>
+    );
 
-
-            <input
-                value={state.email}
-                type="email"
-                name="email"
-                placeholder="Email"
-                onChange={handleChange}
-                className="border p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-
-            <input
-                value={state.password}
-                type="password"
-                name="password"
-                placeholder="Password"
-                onChange={handleChange}
-                className="border p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-
-            <input
-                value={state.role}
-                type="text"
-                name="role"
-                placeholder="Role Alumni or Student"
-                onChange={handleChange}
-                className="border p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-
-            <input
-                value={state.bio}
-                type="text"
-                name="bio"
-                placeholder="Bio"
-                onChange={handleChange}
-                className="border p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-
-            <input
-                value={state.graduationYear}
-                type="number"
-                name="graduationYear"
-                placeholder="Graduation year"
-                onChange={handleChange}
-                className="border p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-
-            <input
-                value={state.department}
-                type="text"
-                name="department"
-                placeholder="Department"
-                onChange={handleChange}
-                className="border p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-
-            <button
-                type="submit"
-                className="bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
-            >
-
-                Register
-            </button>
-        </form>
-        </>
-    )
 }
 
 
