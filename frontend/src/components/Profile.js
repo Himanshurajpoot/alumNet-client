@@ -3,10 +3,24 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '../utils/auth';
 import { profileURL } from '../utils/constant';
 import UserForm from './common/UserForm';
+import InitialsAvatar from './common/InitialsAvatar';
+import departmentsData from '../data/departments.json';
 
 function Profile() {
     const [profile, setProfile] = useState(null);
     const [dummy, setDummy] = useState({
+        name: '',
+        email: '',
+        password: '',
+        role: 'student',
+        graduationYear: '',
+        department: '',
+        verified: true,
+        isActive: true,
+        avatarUrl: '',
+        batch: '',
+        course: '',
+        currentJob: '',
         error: ''
     });
     const [loading, setLoading] = useState(false);
@@ -22,37 +36,7 @@ function Profile() {
         years.push(i);
     }
 
-    const departments = [
-        "Department of Basic Sciences",
-        "Department of Agriculture",
-        "Department of Civil Engineering",
-        "Department of Electrical, Electronics & Communication Engineering",
-        "Department of Mechanical Engineering",
-        "Department of Computer Science & Engineering",
-        "Department of Computer Applications & Technology",
-        "Department of Artificial Intelligence",
-        "Department of Defence Technology",
-        "Department of Design",
-        "Department of Finance & Commerce",
-        "Department of Hospitality & Toursim",
-        "Department of legal Studies",
-        "Department of Mass Communication",
-        "Department of Humanities",
-        "Department of Languages",
-        "Department of Pharmacy",
-        "Department of Allied Health Sciences",
-        "Department of Nursing",
-        "Department of Education",
-        "Department of Biotechnology & Bioengineering",
-        "Department of Life Sciences",
-        "Department of Food Technology",
-        "Department of Biomedical Sciences",
-        "Department of Forensic Sciences",
-        "Department of Management",
-        "Department of Aviation, Logistics & Tourism Management",
-        "Department of Finance and Commerce",
-        "Department of Vocational Education"
-    ];
+    const departments = departmentsData.departments;
 
     async function fetchProfile() {
         setLoading(true);
@@ -136,15 +120,15 @@ function Profile() {
     // handles edit profile
     const handleEditProfile = async (e) => {
         e.preventDefault();
+        setLoading(true);
+        
         try {
-
             const res = await fetch(profileURL, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                     Authorization: `Bearer ${auth.user.token}`
                 },
-
                 body: JSON.stringify(dummy)
             })
 
@@ -152,20 +136,20 @@ function Profile() {
 
             if (!res.ok) {
                 console.error('Update error:', data);
-                alert(data?.message || 'Failed to update profile.');
+                setDummy(prev => ({ ...prev, error: data?.message || 'Failed to update profile.' }));
                 setLoading(false);
-                setShowEdit(false);
                 return;
             }
 
             // again fetch the updated data from db
             await fetchProfile();
-
             setShowEdit(false);
         } catch (error) {
             console.error('Update failed:', error);
+            setDummy(prev => ({ ...prev, error: 'Update failed. Please try again.' }));
+        } finally {
+            setLoading(false);
         }
-
     }
 
     if (loading) {
@@ -189,16 +173,17 @@ function Profile() {
     return (
         <div className="max-w-xl mx-auto mt-10 bg-white shadow-lg rounded-lg p-8">
             <div className="flex flex-col items-center mb-6">
-                {profile?.avatarUrl ? (
+                {false ? (
                     <img
                         src={`http://localhost:4000${profile.avatarUrl}`}
                         alt="Profile"
                         className="w-24 h-24 rounded-full object-cover border-4 border-blue-300 mb-4"
                     />
                 ) : (
-                    <div className="w-24 h-24 rounded-full bg-gray-100 border-4 border-dashed border-blue-300 flex items-center justify-center text-gray-500 text-sm mb-4">
-                        No Image
-                    </div>
+                    <InitialsAvatar 
+                        name={profile?.name} 
+                        className="mb-4"
+                    />
                 )}
 
                 {(
@@ -238,7 +223,14 @@ function Profile() {
 
             <div className="flex gap-4 mt-6 justify-center">
                 <button
-                    onClick={() => setShowEdit(true)}
+                    onClick={() => {
+                        setDummy(prev => ({
+                            ...prev,
+                            ...profile,
+                            error: ''
+                        }));
+                        setShowEdit(true);
+                    }}
                     className="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 transition" >
                     Edit Profile
                 </button>
@@ -256,7 +248,7 @@ function Profile() {
                     onClick={() => setShowEdit(false)}
                 >
                     <div
-                        className="relative bg-white rounded-lg shadow-lg w-full max-w-md max-h-[90vh] overflow-y-auto p-6 hide-scrollbar"
+                        className="relative bg-white rounded-lg shadow-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto p-6 hide-scrollbar"
                         onClick={(e) => e.stopPropagation()}
                     >
 

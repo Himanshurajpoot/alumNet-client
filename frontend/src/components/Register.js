@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { registerUser } from '../utils/constant';
 import { useNavigate } from 'react-router-dom';
 import UserForm from './common/UserForm';
+import departmentsData from '../data/departments.json';
 
 function Register() {
     const [state, setState] = useState({
@@ -27,37 +28,7 @@ function Register() {
         years.push(i);
     }
 
-    const departments = [
-        "Department of Basic Sciences",
-        "Department of Agriculture",
-        "Department of Civil Engineering",
-        "Department of Electrical, Electronics & Communication Engineering",
-        "Department of Mechanical Engineering",
-        "Department of Computer Science & Engineering",
-        "Department of Computer Applications & Technology",
-        "Department of Artificial Intelligence",
-        "Department of Defence Technology",
-        "Department of Design",
-        "Department of Finance & Commerce",
-        "Department of Hospitality & Toursim",
-        "Department of legal Studies",
-        "Department of Mass Communication",
-        "Department of Humanities",
-        "Department of Languages",
-        "Department of Pharmacy",
-        "Department of Allied Health Sciences",
-        "Department of Nursing",
-        "Department of Education",
-        "Department of Biotechnology & Bioengineering",
-        "Department of Life Sciences",
-        "Department of Food Technology",
-        "Department of Biomedical Sciences",
-        "Department of Forensic Sciences",
-        "Department of Management",
-        "Department of Aviation, Logistics & Tourism Management",
-        "Department of Finance and Commerce",
-        "Department of Vocational Education"
-    ];
+    const departments = departmentsData.departments;
 
 
 
@@ -71,7 +42,7 @@ function Register() {
 
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-200 via-white to-blue-400">
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-200 via-white to-blue-400 p-4">
             <UserForm
                 state={state}
                 setState={setState}

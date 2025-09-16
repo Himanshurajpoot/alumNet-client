@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { loginUser } from '../utils/constant';
 import { useAuth } from '../utils/auth';
 
@@ -12,7 +12,16 @@ function Login() {
     const [loading, setLoading] = useState(false);
 
     const navigate = useNavigate();
+    const location = useLocation();
     const auth = useAuth();
+
+    // Redirect if already authenticated
+    useEffect(() => {
+        if (auth.user && auth.user.token) {
+            const from = location.state?.from || '/profile';
+            navigate(from, { replace: true });
+        }
+    }, [auth.user, location.state, navigate]);
 
     const handleChange = ({ target }) => {
         const { name, value } = target;

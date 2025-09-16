@@ -1,109 +1,107 @@
 import { useAuth } from '../utils/auth';
-import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import Home from "./Home";
 import Register from "./Register";
 import Login from "./Login";
 import Profile from "./Profile";
-import { Route, Routes } from 'react-router-dom'
+import { Route, Routes, Navigate } from 'react-router-dom'
 import NoMatch from "./Nomatch";
 import Feed from "./Feed";
 import Headers from "./Header";
 import CreatePost from "./CreatePost";
 import Alumni from "./Alumni";
 import Events from "./Events";
-import { profileURL } from '../utils/constant';
+import ErrorBoundary from "./common/ErrorBoundary";
+import { ErrorModuleProvider } from "./common/ErrorModule";
+import ErrorToastContainer from "./common/ErrorToast";
+import ErrorHistory from "./common/ErrorHistory";
+import ProtectedRoute from "./common/ProtectedRoute";
 
 function App() {
   const auth = useAuth();
-  const navigate = useNavigate();
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const key = localStorage.getItem('jwt');
-    console.log(key);
-
-    if (key) {
-      fetch(profileURL, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${key}`
-        }
-      })
-        .then(async (res) => {
-          if (!res.ok) {
-            return await res.json().then(({ message }) => {
-              return Promise.reject(message);
-            });
-          }
-          return await res.json();
-        })
-        .then((data) => auth.login(data.user))
-        .catch((error) => {
-          auth.logout();
-          navigate('/');
-          alert(error);
-        })
-        .finally(() => {
-          setLoading(false)
-        })
-    } else {
-      setLoading(false)
-    }
-
-  }, [])
-
-  if (loading) {
+  // Show loading screen while checking localStorage
+  if (auth.isLoading) {
     return (
-      <div className="text-center mt-20 text-lg font-semibold text-gray-600">
-        Loading...
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-lg font-semibold text-gray-600">Loading...</p>
+          <p className="text-sm text-gray-500 mt-2">Restoring your session</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <>
-      <Headers />
-    
-      {auth.user && auth.user?.token ? <AuthenticatedRoutes /> : <UnAuthenticatedRoutes />}
-    </>
+    <ErrorModuleProvider>
+      <ErrorBoundary>
+        <Headers />
+        <Routes>
+          {/* Public Routes */}
+          <Route path="/" element={
+            <ErrorBoundary>
+              <Home />
+            </ErrorBoundary>
+          } />
+          <Route path="/register" element={
+            <ErrorBoundary>
+              <Register />
+            </ErrorBoundary>
+          } />
+          <Route path="/login" element={
+            <ErrorBoundary>
+              <Login />
+            </ErrorBoundary>
+          } />
+
+          {/* Protected Routes */}
+          <Route path="/profile" element={
+            <ProtectedRoute>
+              <ErrorBoundary>
+                <Profile />
+              </ErrorBoundary>
+            </ProtectedRoute>
+          } />
+          <Route path="/feed" element={
+            <ProtectedRoute>
+              <ErrorBoundary>
+                <Feed />
+              </ErrorBoundary>
+            </ProtectedRoute>
+          } />
+          <Route path="/events" element={
+            <ProtectedRoute>
+              <ErrorBoundary>
+                <Events />
+              </ErrorBoundary>
+            </ProtectedRoute>
+          } />
+          <Route path="/post/create" element={
+            <ProtectedRoute>
+              <ErrorBoundary>
+                <CreatePost />
+              </ErrorBoundary>
+            </ProtectedRoute>
+          } />
+          <Route path="/alumni" element={
+            <ProtectedRoute>
+              <ErrorBoundary>
+                <Alumni />
+              </ErrorBoundary>
+            </ProtectedRoute>
+          } />
+
+          {/* 404 Route */}
+          <Route path="*" element={<NoMatch />} />
+        </Routes>
+        <ErrorToastContainer />
+        <ErrorHistory />
+      </ErrorBoundary>
+    </ErrorModuleProvider>
   );
 }
 
 
-function UnAuthenticatedRoutes() {
-  return (
-    <>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="*" element={<NoMatch />} />
-          <Route path="/feed" element={<Feed />} />
-      </Routes>
-
-    </>
-  );
-}
-
-
-
-
-function AuthenticatedRoutes() {
-  return (
-    <>
-      <Routes>
-        <Route path="/profile" element={<Profile />} />
-          <Route path="/feed" element={<Feed />} />
-        <Route path="/events" element={<Events />} />
-        <Route path="/post/create" element={<CreatePost />} />
-        <Route path="/alumni" element={<Alumni />} />
-        <Route path="*" element={<NoMatch />} />
-      </Routes>
-
-
-    </>
-  )
-}
 
 export default App;
